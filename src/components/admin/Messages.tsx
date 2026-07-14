@@ -12,7 +12,7 @@ export default function AdminMessages() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'contact_messages'), where('platformId', '==', PLATFORM_CONFIG.id));
+    const q = query(collection(db, 'contact_messages'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messagesData = snapshot.docs.map(doc => ({
@@ -20,6 +20,10 @@ export default function AdminMessages() {
         ...doc.data()
       })).sort((a: any, b: any) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
       setMessages(messagesData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching messages:", error);
+      toast.error("Erreur lors du chargement des messages");
       setLoading(false);
     });
 
@@ -84,7 +88,7 @@ export default function AdminMessages() {
                     </button>
                   </TableCell>
                   <TableCell>
-                    {message.createdAt?.toDate().toLocaleDateString('fr-FR')}
+                    {message.createdAt?.toDate ? message.createdAt.toDate().toLocaleDateString('fr-FR') : (message.createdAt ? new Date(message.createdAt).toLocaleDateString('fr-FR') : 'Date inconnue')}
                   </TableCell>
                   <TableCell>
                     <div>
