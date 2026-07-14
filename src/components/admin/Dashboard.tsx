@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       setStats(prev => ({ ...prev, publications: snapshot.size }));
     });
 
-    const qMessages = query(collection(db, 'contact_messages'), where('platformId', '==', PLATFORM_CONFIG.id));
+    const qMessages = query(collection(db, 'contact_messages'));
     const unsubMessages = onSnapshot(qMessages, (snapshot) => {
       let unreadCount = 0;
       snapshot.forEach(doc => {
@@ -55,6 +55,8 @@ export default function AdminDashboard() {
         }
       });
       setStats(prev => ({ ...prev, unreadMessages: unreadCount }));
+    }, (error) => {
+      console.error("Error fetching messages for dashboard:", error);
     });
 
     return () => {
@@ -277,7 +279,7 @@ export default function AdminDashboard() {
                         {activity.action === 'CREATE' ? 'ajouté' : activity.action === 'UPDATE' ? 'modifié' : 'supprimé'}.
                       </p>
                       <p className="text-xs text-slate-500 dark:text-white/40 mt-1">
-                        {activity.timestamp ? format(activity.timestamp.toDate(), "d MMM yyyy 'à' HH:mm:ss", { locale: fr }) : "A l'instant"}
+                        {activity.timestamp?.toDate ? format(activity.timestamp.toDate(), "d MMM yyyy 'à' HH:mm:ss", { locale: fr }) : "A l'instant"}
                       </p>
                     </div>
                   </div>
