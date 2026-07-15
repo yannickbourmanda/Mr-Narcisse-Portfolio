@@ -89,20 +89,22 @@ export default function Contact() {
     }
 
     const data = {
-      platformId: PLATFORM_CONFIG.id,
-      firstName: formData.get('firstName'),
-      lastName: formData.get('lastName'),
-      email: formData.get('email'),
-      subject: formData.get('subject'),
-      message: formData.get('message'),
-      name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+      platformId: PLATFORM_CONFIG.id || "unknown",
+      firstName: formData.get('firstName') as string || "",
+      lastName: formData.get('lastName') as string || "",
+      email: formData.get('email') as string || "",
+      subject: formData.get('subject') as string || "",
+      message: formData.get('message') as string || "",
+      name: `${formData.get('firstName') || ""} ${formData.get('lastName') || ""}`,
       isRead: false,
       createdAt: serverTimestamp()
     };
 
     try {
+      console.log("Submitting form data:", data);
       // 1. Sauvegarde dans la base de données (CMS)
-      await addDoc(collection(db, 'contact_messages'), data);
+      const docRef = await addDoc(collection(db, 'contact_messages'), data);
+      console.log("Document successfully written with ID:", docRef.id);
 
       // 2. Envoi de l'email automatique via l'API Node.js
       try {
@@ -122,7 +124,7 @@ export default function Contact() {
       localStorage.setItem('lastContactSubmit', Date.now().toString());
 
       toast.success('Votre message a été transmis avec succès.');
-      (e.target as HTMLFormElement).reset();
+      e.currentTarget.reset();
     } catch (error) {
       console.error(error);
       toast.error('Une erreur est survenue. Veuillez réessayer.');
